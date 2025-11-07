@@ -1,5 +1,6 @@
 package com.example.budget_tracker.service.csvParserImpls;
 
+import com.example.budget_tracker.domain.Category;
 import com.example.budget_tracker.domain.Transaction;
 import com.example.budget_tracker.service.CsvParserService;
 import com.opencsv.CSVReader;
@@ -41,7 +42,7 @@ public class ChaseBankingCsvParser implements CsvParserService {
                 String description = line[2];
                 Double amount = Double.parseDouble(line[3]);
                 String type = line[4];
-                String category = null;
+                Category category = null;
 
                 Transaction txn = new Transaction(date, description, category, type, amount);
                 transactions.add(txn);

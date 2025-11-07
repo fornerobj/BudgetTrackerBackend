@@ -1,5 +1,6 @@
 package com.example.budget_tracker.service.csvParserImpls;
 
+import com.example.budget_tracker.domain.Category;
 import com.example.budget_tracker.domain.Transaction;
 import com.example.budget_tracker.service.CsvParserService;
 import com.opencsv.CSVReader;
@@ -39,7 +40,7 @@ public class DiscoverCardCsvParser implements CsvParserService {
                 if (i++ == 0) continue; // skip header
                 LocalDate date = LocalDate.parse(line[0], formatter);
                 String description = line[2];
-                String category = null;
+                Category category = null;
                 String type = null;
                 Double amount = Double.parseDouble(line[3]) * -1;
 

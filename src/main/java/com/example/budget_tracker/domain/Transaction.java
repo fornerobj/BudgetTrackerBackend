@@ -20,13 +20,15 @@ public class Transaction {
 
     @Column(length = 1000)
     private String description;
-    private String category;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
     private String type;
     private Double amount;
     private boolean excluded;
 
 
-    public Transaction(LocalDate date, String description, String category, String type, Double amount) {
+    public Transaction(LocalDate date, String description, Category category, String type, Double amount) {
         this.date = date;
         this.description = description;
         this.category = category;

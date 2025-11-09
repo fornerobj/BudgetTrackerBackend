@@ -9,12 +9,15 @@ import com.example.budget_tracker.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -53,5 +56,15 @@ public class BudgetController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }
+    }
+
+    @GetMapping("/userinfo")
+    public Map<String, Object> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
+        String auth0Id = jwt.getSubject(); // This is the "sub" claim from Auth0
+        String email = jwt.getClaimAsString("email");
+
+        // check or create user in DB here
+
+        return Map.of("auth0Id", auth0Id, "email", email);
     }
 }

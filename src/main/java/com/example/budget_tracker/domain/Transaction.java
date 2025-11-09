@@ -27,6 +27,10 @@ public class Transaction {
     private Double amount;
     private boolean excluded;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
 
     public Transaction(LocalDate date, String description, Category category, String type, Double amount) {
         this.date = date;

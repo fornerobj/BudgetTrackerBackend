@@ -20,6 +20,10 @@ public class Category {
     private String description;
     private Double budget;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public Category (String name, String description, Double budget) {
         this.name = name;
         this.description = description;

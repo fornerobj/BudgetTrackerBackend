@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: budget-tracker
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/budget_tracker
+    username: root
+    password: v3MHshb7k!PwZ3cN4fJy
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    # show-sql: true
+    # properties:
+    #   hibernate:
+    #     format_sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-q7urxlgtsrkzsiye.us.auth0.com/
+          audience: https://api.zenfulbudget.com
+
+server:
+  port: 8080
+
+# logging:
+#   level:
+#     com.spotify: DEBUG
+#     org.hibernate.SQL: DEBUG
+#     org.hibernate.type.descriptor.sql.BasicBinder: TRACE

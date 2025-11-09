@@ -8,3 +8,9 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-q7urxlgtsrkzsiye.us.auth0.com/
+          audience: https://api.zenfulbudget.com

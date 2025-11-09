@@ -37,6 +37,7 @@ public class TransactionController {
                 .and(TransactionSpecification.amountBetween(amountMin, amountMax));
 
         List<Transaction> result = transactionService.findAll(spec);
+        System.out.println(result);
         return ResponseEntity.ok(result);
     }
 

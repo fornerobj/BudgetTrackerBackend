@@ -12,5 +12,5 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-q7urxlgtsrkzsiye.us.auth0.com/
-          audience: https://api.zenfulbudget.com
+          issuer-uri: ${issuer_uri}
+          audience: ${audience}

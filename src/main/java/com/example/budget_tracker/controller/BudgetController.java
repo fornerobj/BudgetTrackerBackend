@@ -1,11 +1,10 @@
 package com.example.budget_tracker.controller;
 
 import com.example.budget_tracker.domain.Transaction;
+import com.example.budget_tracker.domain.User;
 import com.example.budget_tracker.dto.BudgetSummaryDto;
-import com.example.budget_tracker.service.BudgetService;
-import com.example.budget_tracker.service.CsvParserFactory;
-import com.example.budget_tracker.service.CsvParserService;
-import com.example.budget_tracker.service.TransactionService;
+import com.example.budget_tracker.exception.UserNotFoundException;
+import com.example.budget_tracker.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -28,14 +27,26 @@ public class BudgetController {
     @Autowired
     private BudgetService budgetService;
     @Autowired
-    TransactionService transactionService;
+    private TransactionService transactionService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/upload")
-    public ResponseEntity<List<Transaction>> uploadCsv(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<List<Transaction>> uploadCsv(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal Jwt jwt) {
         try {
             CsvParserService csvParser = csvParserFactory.getParser(file);
             List<Transaction> transactions = csvParser.parseCsv(file);
-            List<Transaction> savedTransactions = transactionService.importTransactions(transactions);
+
+            User user = userService.findByAuth0Id(jwt.getSubject());
+            if(user == null) {
+                throw new UserNotFoundException("User not found with Auth0 ID: " + jwt.getSubject());
+            }
+
+            transactions.forEach(tx -> tx.setUser(user));
+
+            List<Transaction> savedTransactions = transactionService.importTransactions(user, transactions);
             return ResponseEntity.ok(savedTransactions);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -45,10 +56,13 @@ public class BudgetController {
     @GetMapping("/summary")
     public ResponseEntity<List<BudgetSummaryDto>> getBudgetSummary(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo)
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
+            @AuthenticationPrincipal Jwt jwt)
     {
         try {
+            User user = userService.findByAuth0Id(jwt.getSubject());
             List<BudgetSummaryDto> summaries = budgetService.getBudgetSummaries(
+                    user,
                     dateFrom,
                     dateTo
             );
@@ -56,15 +70,5 @@ public class BudgetController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }
-    }
-
-    @GetMapping("/userinfo")
-    public Map<String, Object> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
-        String auth0Id = jwt.getSubject(); // This is the "sub" claim from Auth0
-        String email = jwt.getClaimAsString("email");
-
-        // check or create user in DB here
-
-        return Map.of("auth0Id", auth0Id, "email", email);
     }
 }

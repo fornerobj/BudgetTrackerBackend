@@ -1,6 +1,7 @@
 package com.example.budget_tracker.spec;
 
 import com.example.budget_tracker.domain.Transaction;
+import com.example.budget_tracker.domain.User;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -19,6 +20,13 @@ public class TransactionSpecification {
                 (types == null || types.isEmpty())
                         ? null
                         : root.get("type").in(types);
+    }
+
+    public static Specification<Transaction> belongsToUser(User user) {
+        return (root, query, criteriaBuilder) ->
+                (user == null)
+                        ? null
+                        : criteriaBuilder.equal(root.get("user"), user);
     }
 
     public static Specification<Transaction> isExcluded(Boolean excluded) {

@@ -30,4 +30,11 @@ public class Category {
         this.budget = budget;
     }
 
+    public Category (String name, String description, Double budget, User user) {
+        this.name = name;
+        this.description = description;
+        this.budget = budget;
+        this.user = user;
+    }
+
 }

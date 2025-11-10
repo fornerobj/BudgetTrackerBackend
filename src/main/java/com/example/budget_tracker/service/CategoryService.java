@@ -1,8 +1,11 @@
 package com.example.budget_tracker.service;
 
 import com.example.budget_tracker.domain.Category;
+import com.example.budget_tracker.domain.User;
 import com.example.budget_tracker.dto.CategoryCreateDto;
 import com.example.budget_tracker.dto.CategoryUpdateDto;
+import com.example.budget_tracker.exception.CategoryNotFoundException;
+import com.example.budget_tracker.exception.CategoryOwnershipException;
 import com.example.budget_tracker.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,8 +20,8 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
 
     //Create
-    public Optional<Category> createCategory(CategoryCreateDto category) {
-        Category newCategory = new Category(category.getName(), category.getDescription(), category.getBudget());
+    public Optional<Category> createCategory(User user, CategoryCreateDto category) {
+        Category newCategory = new Category(category.getName(), category.getDescription(), category.getBudget(), user);
         return Optional.of(categoryRepository.save(newCategory));
     }
 
@@ -27,12 +30,25 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    public List<Category> getCategoriesByUser(User user) {
+        return categoryRepository.findByUser(user);
+    }
+
     public Optional<Category> getCategoryById(Long id) {
         return categoryRepository.findById(id);
     }
 
     //Update
-    public Optional<Category> updateCategory(Long id, CategoryUpdateDto update) {
+    public Optional<Category> updateCategory(User user, Long id, CategoryUpdateDto update) {
+        // Ensure the category belongs to the user
+        Optional<Category> categoryOpt = categoryRepository.findById(id);
+        if(categoryOpt.isEmpty()) {
+            throw new CategoryNotFoundException("Category not found");
+        }
+        if(!categoryOpt.get().getUser().getId().equals(user.getId())) {
+            throw new CategoryOwnershipException("User does not own this category");
+        }
+
         return categoryRepository.findById(id)
                 .map(category -> {
                     update.getName().ifPresent(category::setName);
@@ -43,7 +59,15 @@ public class CategoryService {
     }
 
     //Delete
-    public Optional<Category> deleteCategory(Long id) {
+    public Optional<Category> deleteCategory(User user, Long id) {
+        // Ensure the category belongs to the user
+        Optional<Category> categoryOpt = categoryRepository.findById(id);
+        if(categoryOpt.isEmpty()) {
+            throw new CategoryNotFoundException("Category not found");
+        }
+        if(!categoryOpt.get().getUser().getId().equals(user.getId())) {
+            throw new CategoryOwnershipException("User does not own this category");
+        }
         return categoryRepository.findById(id)
                 .map(category -> {
                     categoryRepository.delete(category);

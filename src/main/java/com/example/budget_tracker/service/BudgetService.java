@@ -2,6 +2,7 @@ package com.example.budget_tracker.service;
 
 import com.example.budget_tracker.domain.Category;
 import com.example.budget_tracker.domain.Transaction;
+import com.example.budget_tracker.domain.User;
 import com.example.budget_tracker.dto.BudgetSummaryDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,8 @@ public class BudgetService {
     @Autowired
     TransactionService transactionService;
 
-    public List<BudgetSummaryDto> getBudgetSummaries(LocalDate dateFrom, LocalDate dateTo) {
-        List<Category> categories = categoryService.getAllCategories();
+    public List<BudgetSummaryDto> getBudgetSummaries(User user, LocalDate dateFrom, LocalDate dateTo) {
+        List<Category> categories = categoryService.getCategoriesByUser(user);
         return categories.stream().map(cat -> {
             List<Transaction> transactions = transactionService.findAll((root, query, cb) -> cb.and(
                     cb.equal(root.get("category"), cat),

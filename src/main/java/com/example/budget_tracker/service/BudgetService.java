@@ -25,12 +25,13 @@ public class BudgetService {
             List<Transaction> transactions = transactionService.findAll((root, query, cb) -> cb.and(
                     cb.equal(root.get("category"), cat),
                     cb.equal(root.get("excluded"), false),
-                    cb.between(root.get("date"), dateFrom, dateTo)
+                    cb.between(root.get("date"), dateFrom, dateTo),
+                    cb.equal(root.get("user"), user)
             ));
-            for (Transaction tx : transactions) {
-                System.out.println("Transaction: " + tx.getDescription() + ", Amount: " + tx.getAmount());
-            }
             double spent = transactions.stream().mapToDouble(Transaction::getAmount).sum();
+            if (spent != 0.0) {
+                spent = -spent;
+            }
             double budget = cat.getBudget() != null ? cat.getBudget() : 0.0;
             double remaining = budget - spent;
             return new BudgetSummaryDto(
